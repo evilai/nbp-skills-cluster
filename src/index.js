@@ -1,4 +1,5 @@
 import tail from 'lodash/tail';
+import filter from 'lodash/filter';
 import intersection from 'lodash/intersection';
 import difference from 'lodash/difference';
 import keys from 'lodash/keys';
@@ -75,14 +76,25 @@ export default class Cluster {
                         throw new Error(ERROR_CLUSTER_PARAMS_SKILLS_ARRAY);
                     }
 
+                    const skillsToSkip = rules.get('skip');
+
                     // Add to queue only existing skills
                     const existingSkillsToAdd = this.filterExistingSkills(skillsToAdd);
-                    const newQueue = uniq(existingSkillsToAdd.concat(tail(queue)));
+                    let newQueue = uniq(existingSkillsToAdd.concat(tail(queue)));
 
                     // And save unexistent skills for the future skills clusters traversal
                     rules.set({
                         skills: this.filterNonexistentSkills(skillsToAdd)
                     });
+
+                    if (Boolean(skillsToSkip)) {
+                        if (skillsToSkip === '*') {
+                            newQueue = [];
+                        }
+                        if (isArray(skillsToSkip)) {
+                            newQueue = uniq(filter(tail(queue), skillName => !~skillsToSkip.indexOf(skillName)));
+                        }
+                    }
 
                     return this.traverse(newQueue, Object.assign({}, newParams, { rules }));
                 })

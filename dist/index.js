@@ -10,6 +10,10 @@ var _tail = require('lodash/tail');
 
 var _tail2 = _interopRequireDefault(_tail);
 
+var _filter = require('lodash/filter');
+
+var _filter2 = _interopRequireDefault(_filter);
+
 var _intersection = require('lodash/intersection');
 
 var _intersection2 = _interopRequireDefault(_intersection);
@@ -122,6 +126,8 @@ var Cluster = function () {
                         throw new Error(_errors.ERROR_CLUSTER_PARAMS_SKILLS_ARRAY);
                     }
 
+                    var skillsToSkip = rules.get('skip');
+
                     // Add to queue only existing skills
                     var existingSkillsToAdd = _this.filterExistingSkills(skillsToAdd);
                     var newQueue = (0, _uniq2.default)(existingSkillsToAdd.concat((0, _tail2.default)(queue)));
@@ -130,6 +136,17 @@ var Cluster = function () {
                     rules.set({
                         skills: _this.filterNonexistentSkills(skillsToAdd)
                     });
+
+                    if (Boolean(skillsToSkip)) {
+                        if (skillsToSkip === '*') {
+                            newQueue = [];
+                        }
+                        if ((0, _isArray2.default)(skillsToSkip)) {
+                            newQueue = (0, _uniq2.default)((0, _filter2.default)((0, _tail2.default)(queue), function (skillName) {
+                                return !~skillsToSkip.indexOf(skillName);
+                            }));
+                        }
+                    }
 
                     return _this.traverse(newQueue, Object.assign({}, newParams, { rules: rules }));
                 }).catch(function (error) {

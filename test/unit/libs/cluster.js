@@ -1,8 +1,8 @@
 import Cluster from '../../../src/index';
 import { expect } from 'chai';
 
-import { skill, skillDelayed } from './fixtures/skills';
-import { rules, rulesWithNonexistingSkills, rulesWithExistingSkills } from './fixtures/rules';
+import { skill, skillDelayed, spy } from './fixtures/skills';
+import { rules, rulesWithNonexistingSkills, rulesWithExistingSkills, rulesWithSkipSkills, rulesWithSkipAll } from './fixtures/rules';
 
 import {
     ERROR_CLUSTER_NO_NAME,
@@ -76,6 +76,18 @@ describe('Cluster', () => {
             cluster.plug([skill, skillDelayed]);
             const builder = cluster.buildDecisionTree(() => Promise.resolve(['skill']));
             builder.then(tree => cluster.traverse(tree, { rules: rulesWithExistingSkills, done }));
+        });
+
+        it('should skip skills specified in field \'skip\' inside rules', (done) => {
+            cluster.plug([skill, skillDelayed]);
+            const builder = cluster.buildDecisionTree(() => Promise.resolve(['skill', 'skillToSkip', 'skillToSkip2', 'delayedSkill']));
+            builder.then(tree => cluster.traverse(tree, { rules: rulesWithSkipSkills, done }));
+        });
+
+        it('should skip all skills if field \'skip=*\' inside rules', (done) => {
+            cluster.plug([skill, spy]);
+            const builder = cluster.buildDecisionTree(() => Promise.resolve(['skill', 'spy']));
+            builder.then(tree => cluster.traverse(tree, { rules: rulesWithSkipAll })).then(context => !spy.lambda.callCount ? done() : null);
         });
     });
 });

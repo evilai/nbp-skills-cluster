@@ -1,10 +1,11 @@
 {
   "name": "nbp-skills-cluster",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "This is a Node.js Bot Platform skills cluster with ability to build part of the global decision tree and run tree traverse.",
   "main": "dist/index.js",
   "scripts": {
     "build": "babel ./src --preset babel-preset-es2015 --out-dir ./dist",
+    "build:watch": "babel ./src --preset babel-preset-es2015 --out-dir ./dist --watch",
     "prepublish": "npm run test; npm run build",
     "test": "mocha"
   },
@@ -32,6 +33,7 @@
     "babel-preset-stage-0": "^6.16.0",
     "chai": "^3.5.0",
     "eslint-config-evilai": "0.0.1",
-    "mocha": "^3.1.2"
+    "mocha": "^3.1.2",
+    "sinon": "^1.17.6"
   }
 }
